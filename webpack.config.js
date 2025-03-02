@@ -1,4 +1,4 @@
-import { resolve } from 'node:path';
+import { resolve, join } from 'node:path';
 import HtmlBundlerPlugin from 'html-bundler-webpack-plugin';
 
 export default {
@@ -7,7 +7,27 @@ export default {
   devtool: 'eval-source-map',
 
   devServer: {
-    static: './dist/pages',
+    static: {
+      directory: join(import.meta.dirname, 'dist'),
+    },
+    watchFiles: {
+      paths: ['src/**/*.*'],
+      options: {
+        usePolling: true,
+      },
+    },
+  },
+
+  resolve: {
+    alias: {
+      '@assets': join(import.meta.dirname, 'src/assets'),
+      '@img': join(import.meta.dirname, 'src/assets/img'),
+      '@svg': join(import.meta.dirname, 'src/assets/svg'),
+      '@fonts': join(import.meta.dirname, 'src/assets/fonts'),
+      '@scripts': join(import.meta.dirname, 'src/scripts'),
+      '@styles': join(import.meta.dirname, 'src/styles'),
+      '@templates': join(import.meta.dirname, 'src/templates'),
+    },
   },
 
   output: {
@@ -20,12 +40,12 @@ export default {
       entry: [
         {
           import: 'src/templates/home.html', // template file
-          filename: 'pages/index.html', // => dist/pages/index.html
+          filename: 'index.html', // => dist/pages/index.html
           data: { title: 'Home page' }, // pass variables into template
         },
         {
           import: 'src/templates/about.html', // template file
-          filename: 'pages/about.html', // => dist/pages/about.html
+          filename: 'about.html', // => dist/pages/about.html
           data: { title: 'About page' }, // pass variables into template
         },
       ],
@@ -44,12 +64,12 @@ export default {
   module: {
     rules: [
       {
-        test: /\.(s?css)$/,
+        test: /\.(s?css)$/i,
         use: ['css-loader', 'sass-loader'],
       },
 
       {
-        test: /\.(ico|png|jp?g|webp|tiff)/,
+        test: /\.(ico|png|jp?g|webp|tiff)$/i,
         type: 'asset/resource',
         generator: {
           filename: 'assets/img/[name][ext]',
@@ -57,7 +77,7 @@ export default {
       },
 
       {
-        test: /\.(svg)/,
+        test: /\.(svg)$/i,
         type: 'asset/resource',
         generator: {
           filename: 'assets/svg/[name][ext]',
@@ -73,15 +93,4 @@ export default {
       },
     ],
   },
-
-  // enable HMR with live reload
-  // devServer: {
-  //   static: resolve(import.meta.dirname, 'dist'),
-  //   watchFiles: {
-  //     paths: ['src/**/*.*'],
-  //     options: {
-  //       usePolling: true,
-  //     },
-  //   },
-  // },
 };
